@@ -21,6 +21,14 @@ public class SceneManager : MonoBehaviour
 
     public Text PointText;
 
+    public Text ResultText;
+
+    public float WaitResultSeconds = 2;
+
+    public Text GoalPointText;
+
+    public int goalPoint = 40;
+
     //パラメータ
     public int StartPoint = 20;
 
@@ -51,6 +59,7 @@ public class SceneManager : MonoBehaviour
     {
         BetsInput.onValidateInput = BetsInputOnValidateInput;
         BetsInput.onValueChanged.AddListener (BetsInputOnValueChanged);
+        GoalPointText.text = goalPoint.ToString();
     }
 
     char BetsInputOnValidateInput(string text, int startIndex, char addedChar)
@@ -77,6 +86,7 @@ public class SceneManager : MonoBehaviour
         BetsText.text = "0";
         PointText.text = currentPoint.ToString();
 
+        ResultText.gameObject.SetActive(false);
         while (true)
         {
             InitCards(); //カードを初期化する
@@ -110,6 +120,7 @@ public class SceneManager : MonoBehaviour
 
             // プレイヤーが行動を決めるまで待つ
             bool waitAction = true;
+            bool doWin = false;
             do
             {
                 CurrentAction = Action.WaitAction;
@@ -120,13 +131,17 @@ public class SceneManager : MonoBehaviour
                 switch (CurrentAction)
                 {
                     case Action.Hit:
-                        Debug.Log("Hit");
                         PlayerDealCard();
                         waitAction = true;
+                        if (!CheckPlayerCard())
+                        {
+                            waitAction = false;
+                            doWin = false;
+                        }
                         break;
                     case Action.Stand:
-                        Debug.Log("Stand");
                         waitAction = false;
+                        doWin = StandAction();
                         break;
                     default:
                         waitAction = true;
@@ -134,8 +149,38 @@ public class SceneManager : MonoBehaviour
                 }
             }
             while (waitAction);
+
             //行う行動に合わせて処理を分岐する
             //ゲームの結果を判定する
+            ResultText.gameObject.SetActive(true);
+            if (doWin)
+            {
+                currentPoint += currentBets;
+                ResultText.text = "Win!! + " + currentBets;
+            }
+            else
+            {
+                currentPoint -= currentBets;
+                ResultText.text = "Lose... - " + currentBets;
+            }
+            PointText.text = currentPoint.ToString();
+
+            yield return new WaitForSeconds(WaitResultSeconds);
+            ResultText.gameObject.SetActive(false);
+
+            //ゲームオーバー・ゲームクリア処理
+            if (currentPoint <= 0)
+            {
+                ResultText.gameObject.SetActive(true);
+                ResultText.text = "Game Over...";
+                break;
+            }
+            if (currentPoint >= goalPoint)
+            {
+                ResultText.gameObject.SetActive(true);
+                ResultText.text = "Game Clear!!";
+                break;
+            }
         }
     }
 
@@ -210,10 +255,12 @@ public class SceneManager : MonoBehaviour
         {
             //ディーラーに２枚カードを配る
             var holeCardObj = Object.Instantiate(CardPrefab, Dealer.transform);
+            holeCardObj.IsLarge = holeCardObj.Number == 1; //ディーラーのエースカードは必ず11にする
             var holeCard = DealCard();
             holeCardObj.SetCard(holeCard.Number, holeCard.Mark, true);
 
             var upCardObj = Object.Instantiate(CardPrefab, Dealer.transform);
+            upCardObj.IsLarge = upCardObj.Number == 1; //ディーラーのエースカードは必ず11にする
             var upCard = DealCard();
             upCardObj.SetCard(upCard.Number, upCard.Mark, false);
         }
@@ -234,5 +281,38 @@ public class SceneManager : MonoBehaviour
         var cardObj = Object.Instantiate(CardPrefab, Player.transform);
         var card = DealCard();
         cardObj.SetCard(card.Number, card.Mark, false);
+    }
+
+    bool CheckPlayerCard()
+    {
+        var sumNumber = 0;
+
+        foreach (var card in Player.transform.GetComponentsInChildren<Card>())
+        {
+            sumNumber += card.UseNumber;
+        }
+        return (sumNumber < 21);
+    }
+
+    bool StandAction()
+    {
+        var sumPlayerNumber = 0;
+        foreach (var card in Player.transform.GetComponentsInChildren<Card>())
+        {
+            sumPlayerNumber += card.UseNumber;
+        }
+
+        var sumDealerNumber = 0;
+        foreach (var card in Dealer.transform.GetComponentsInChildren<Card>())
+        {
+            sumDealerNumber += card.UseNumber;
+            if (card.IsReverse)
+            {
+                //裏面のカードを表向きにする
+                card.SetCard(card.Number, card.CurrentMark, false);
+            }
+        }
+
+        return sumPlayerNumber > sumDealerNumber;
     }
 }
