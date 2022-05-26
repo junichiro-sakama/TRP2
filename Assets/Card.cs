@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Card : MonoBehaviour, IPointerClickHandler
+public class Card : MonoBehaviour
 {
     public class Data
     {
@@ -118,16 +118,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
         {
             var optionalNumberText = optionalNumberObj.GetComponent<Text>();
             optionalNumberText.text = UseNumber.ToString();
-        }
-    }
-
-    // public void OnPointerClick(PointerEventData eventData)
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (Number == 1)
-        {
-            IsLarge = !IsLarge;
-            SetCard (Number, CurrentMark, IsReverse);
         }
     }
 

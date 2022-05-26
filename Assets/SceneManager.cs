@@ -255,12 +255,10 @@ public class SceneManager : MonoBehaviour
         {
             //ディーラーに２枚カードを配る
             var holeCardObj = Object.Instantiate(CardPrefab, Dealer.transform);
-            holeCardObj.IsLarge = holeCardObj.Number == 1; //ディーラーのエースカードは必ず11にする
             var holeCard = DealCard();
             holeCardObj.SetCard(holeCard.Number, holeCard.Mark, true);
 
             var upCardObj = Object.Instantiate(CardPrefab, Dealer.transform);
-            upCardObj.IsLarge = upCardObj.Number == 1; //ディーラーのエースカードは必ず11にする
             var upCard = DealCard();
             upCardObj.SetCard(upCard.Number, upCard.Mark, false);
         }
@@ -286,26 +284,19 @@ public class SceneManager : MonoBehaviour
     bool CheckPlayerCard()
     {
         var sumNumber = 0;
-
-        foreach (var card in Player.transform.GetComponentsInChildren<Card>())
-        {
-            sumNumber += card.UseNumber;
-        }
-        return (sumNumber < 21);
+        sumNumber = CheckCard(Player);
+        return (sumNumber <= 21);
     }
 
     bool StandAction()
     {
         var sumPlayerNumber = 0;
-        foreach (var card in Player.transform.GetComponentsInChildren<Card>())
-        {
-            sumPlayerNumber += card.UseNumber;
-        }
+        sumPlayerNumber = CheckCard(Player);
 
         var sumDealerNumber = 0;
+        sumDealerNumber = CheckCard(Dealer);
         foreach (var card in Dealer.transform.GetComponentsInChildren<Card>())
         {
-            sumDealerNumber += card.UseNumber;
             if (card.IsReverse)
             {
                 //裏面のカードを表向きにする
@@ -314,5 +305,36 @@ public class SceneManager : MonoBehaviour
         }
 
         return sumPlayerNumber > sumDealerNumber;
+    }
+
+    int CheckCard(GameObject gameObject)
+    {
+        var sumNumber = 0;
+        var aceCount = 0;
+        foreach (var
+            card
+            in
+            gameObject.transform.GetComponentsInChildren<Card>()
+        )
+        {
+            if (card.UseNumber == 1) aceCount += 1;
+            sumNumber += card.UseNumber;
+        }
+
+        if (aceCount != 0 && sumNumber <= 21)
+        {
+            for (var i = aceCount; 0 < i; i--)
+            {
+                if (sumNumber + 10 <= 21)
+                {
+                    sumNumber += 10;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+        return sumNumber;
     }
 }
