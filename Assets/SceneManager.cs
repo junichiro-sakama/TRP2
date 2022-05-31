@@ -288,13 +288,15 @@ public class SceneManager : MonoBehaviour
         return (sumNumber <= 21);
     }
 
-    bool StandAction()
+    bool CheckDealerCard()
     {
-        var sumPlayerNumber = 0;
-        sumPlayerNumber = CheckCard(Player);
+        var sumNumber = 0;
+        sumNumber = CheckCard(Dealer);
+        return (sumNumber <= 21);
+    }
 
-        var sumDealerNumber = 0;
-        sumDealerNumber = CheckCard(Dealer);
+    void OpenCard()
+    {
         foreach (var card in Dealer.transform.GetComponentsInChildren<Card>())
         {
             if (card.IsReverse)
@@ -302,6 +304,34 @@ public class SceneManager : MonoBehaviour
                 //裏面のカードを表向きにする
                 card.SetCard(card.Number, card.CurrentMark, false);
             }
+        }
+    }
+
+    bool StandAction()
+    {
+        var sumPlayerNumber = 0;
+        sumPlayerNumber = CheckCard(Player);
+
+        int STAND_NUMER = 17;
+        var sumDealerNumber = 0;
+        sumDealerNumber = CheckCard(Dealer);
+
+        OpenCard();
+
+        // ディーラーがカードを引く条件
+        while (sumDealerNumber < sumPlayerNumber &&
+            sumDealerNumber < STAND_NUMER
+        )
+        {
+            var cardObj = Object.Instantiate(CardPrefab, Dealer.transform);
+            var card = DealCard();
+            cardObj.SetCard(card.Number, card.Mark, false);
+            sumDealerNumber += card.Number;
+        }
+
+        if (!CheckDealerCard())
+        {
+            return true;
         }
 
         return sumPlayerNumber > sumDealerNumber;
