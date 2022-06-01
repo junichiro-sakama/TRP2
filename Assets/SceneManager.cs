@@ -17,6 +17,8 @@ public class SceneManager : MonoBehaviour
 
     public Button BetsInputOKButton;
 
+    public Button DoubleButton;
+
     public Text BetsText;
 
     public Text PointText;
@@ -45,7 +47,9 @@ public class SceneManager : MonoBehaviour
     {
         WaitAction = 0,
         Hit = 1,
-        Stand = 2
+        Stand = 2,
+        Double = 3,
+        Surrender = 4
     }
 
     Action CurrentAction = Action.WaitAction;
@@ -115,6 +119,16 @@ public class SceneManager : MonoBehaviour
             BetsInputDialog.SetActive(false);
             BetsText.text = currentBets.ToString();
 
+            //Doubleが選択できるかの判定
+            if (currentPoint < currentBets * 2)
+            {
+                DoubleButton.interactable = false;
+            }
+            else
+            {
+                DoubleButton.interactable = true;
+            }
+
             //カードを配る
             DealCards();
 
@@ -142,6 +156,24 @@ public class SceneManager : MonoBehaviour
                     case Action.Stand:
                         waitAction = false;
                         doWin = StandAction();
+                        break;
+                    case Action.Double:
+                        PlayerDealCard();
+                        waitAction = false;
+
+                        // 掛け金を2倍にする
+                        currentBets *= 2;
+
+                        //画面の更新
+                        BetsText.text = currentBets.ToString();
+                        doWin = StandAction();
+                        break;
+                    case Action.Surrender:
+                        waitAction = false;
+                        doWin = false;
+
+                        // 掛け金の半分だけ取られる処理を書く
+                        currentBets /= 2;
                         break;
                     default:
                         waitAction = true;
