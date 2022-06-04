@@ -54,6 +54,14 @@ public class SceneManager : MonoBehaviour
         Surrender = 4
     }
 
+    public enum Judge
+    {
+        NoState = 0,
+        Win = 1,
+        Lose = 2,
+        Draw = 3
+    }
+
     Action CurrentAction = Action.WaitAction;
 
     public void SetAction(int action)
@@ -148,7 +156,7 @@ public class SceneManager : MonoBehaviour
 
             // プレイヤーが行動を決めるまで待つ
             bool waitAction = true;
-            bool doWin = false;
+            Judge doWin = Judge.NoState;
             do
             {
                 CurrentAction = Action.WaitAction;
@@ -164,7 +172,7 @@ public class SceneManager : MonoBehaviour
                         if (!CheckPlayerCard())
                         {
                             waitAction = false;
-                            doWin = false;
+                            doWin = Judge.Lose;
                         }
                         break;
                     case Action.Stand:
@@ -184,7 +192,7 @@ public class SceneManager : MonoBehaviour
                         break;
                     case Action.Surrender:
                         waitAction = false;
-                        doWin = false;
+                        doWin = Judge.Lose;
 
                         // 掛け金の半分だけ取られる処理を書く
                         currentBets /= 2;
@@ -199,15 +207,22 @@ public class SceneManager : MonoBehaviour
             //行う行動に合わせて処理を分岐する
             //ゲームの結果を判定する
             ResultText.gameObject.SetActive(true);
-            if (doWin)
+            switch (doWin)
             {
-                currentPoint += currentBets;
-                ResultText.text = "Win!! + " + currentBets;
-            }
-            else
-            {
-                currentPoint -= currentBets;
-                ResultText.text = "Lose... - " + currentBets;
+                case Judge.NoState:
+                    break;
+                case Judge.Win:
+                    currentPoint += currentBets;
+                    ResultText.text = "Win!! + " + currentBets;
+                    break;
+                case Judge.Lose:
+                    currentPoint -= currentBets;
+                    ResultText.text = "Lose... - " + currentBets;
+                    break;
+                case Judge.Draw:
+                    ResultText.text = "Draw";
+                    break;
+                case default:
             }
             PointText.text = currentPoint.ToString();
 
@@ -353,7 +368,7 @@ public class SceneManager : MonoBehaviour
         }
     }
 
-    bool StandAction()
+    Judge StandAction()
     {
         var sumPlayerNumber = 0;
         sumPlayerNumber = CheckCard(Player);
@@ -377,10 +392,21 @@ public class SceneManager : MonoBehaviour
 
         if (!CheckDealerCard())
         {
-            return true;
+            return Judge.Win;
         }
 
-        return sumPlayerNumber > sumDealerNumber;
+        if (sumDealerNumber < sumPlayerNumber)
+        {
+            return Judge.Win;
+        }
+        else if (sumDealerNumber > sumPlayerNumber)
+        {
+            return Judge.Lose;
+        }
+        else
+        {
+            return Judge.Draw;
+        }
     }
 
     int CheckCard(GameObject gameObject)
