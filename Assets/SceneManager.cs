@@ -159,6 +159,8 @@ public class SceneManager : MonoBehaviour
             Judge doWin = Judge.NoState;
             do
             {
+                // //エースの表示を変えるかチェックする
+                // CheckPlayerCard();
                 CurrentAction = Action.WaitAction;
                 yield return new WaitWhile(() =>
                             CurrentAction == Action.WaitAction);
@@ -331,7 +333,9 @@ public class SceneManager : MonoBehaviour
             {
                 var cardObj = Object.Instantiate(CardPrefab, Player.transform);
                 var card = DealCard();
-                cardObj.SetCard(card.Number, card.Mark, false);
+
+                // cardObj.SetCard(card.Number, card.Mark, false);
+                cardObj.SetCard(1, card.Mark, false);
             }
         }
     }
@@ -414,27 +418,41 @@ public class SceneManager : MonoBehaviour
     {
         var sumNumber = 0;
         var aceCount = 0;
+
+        // エースのオブジェクトを記録しておくリスト
+        var aceCards = new List<Card>();
+
         foreach (var
             card
             in
             gameObject.transform.GetComponentsInChildren<Card>()
         )
         {
-            if (card.UseNumber == 1) aceCount += 1;
+            if (card.UseNumber == 1)
+            {
+                aceCount += 1;
+                aceCards.Add (card);
+            }
             sumNumber += card.UseNumber;
         }
 
         if (aceCount != 0 && sumNumber <= 21)
         {
-            for (var i = aceCount; 0 < i; i--)
+            Debug.Log("aceCount: " + aceCount);
+            for (var i = 0; i < aceCount; i++)
             {
                 if (sumNumber + 10 <= 21)
                 {
                     sumNumber += 10;
+                    aceCards[i].SetAceAsEleven();
+                    Debug.Log (aceCount);
+                    Debug.Log("set as 11");
                 }
                 else
                 {
-                    break;
+                    aceCards[i].SetAceAsOne();
+                    Debug.Log (aceCount);
+                    Debug.Log("set as 1");
                 }
             }
         }
