@@ -41,6 +41,8 @@ public class SceneManager : MonoBehaviour
     [Min(100)]
     public int ShuffleCount = 100;
 
+    public int cardCount = 13 * 4;
+
     List<Card.Data> cards;
 
     public enum Action
@@ -91,9 +93,21 @@ public class SceneManager : MonoBehaviour
         PointText.text = currentPoint.ToString();
 
         ResultText.gameObject.SetActive(false);
+
+        InitCards(); //カードを初期化する
+
         while (true)
         {
-            InitCards(); //カードを初期化する
+            if (cards.Count < cardCount * 0.65)
+            {
+                InitCards(); //カードを初期化する
+
+                // カードをシャッフルしたことを表示
+                ResultText.text = "Card Shuffle!!";
+                ResultText.gameObject.SetActive(true);
+                yield return new WaitForSeconds(WaitResultSeconds);
+                ResultText.gameObject.SetActive(false);
+            }
 
             yield return null; //何か実装するまで残しておく
 

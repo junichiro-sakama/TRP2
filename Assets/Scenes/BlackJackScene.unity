@@ -2117,6 +2117,7 @@ MonoBehaviour:
   goalPoint: 40
   StartPoint: 20
   ShuffleCount: 100
+  cardCount: 52
 --- !u!1 &1018003934
 GameObject:
   m_ObjectHideFlags: 0
