@@ -222,7 +222,8 @@ public class SceneManager : MonoBehaviour
                 case Judge.Draw:
                     ResultText.text = "Draw";
                     break;
-                case default:
+                default:
+                    break;
             }
             PointText.text = currentPoint.ToString();
 
