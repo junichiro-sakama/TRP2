@@ -160,7 +160,6 @@ public class SceneManager : MonoBehaviour
             do
             {
                 // //エースの表示を変えるかチェックする
-                // CheckPlayerCard();
                 CurrentAction = Action.WaitAction;
                 yield return new WaitWhile(() =>
                             CurrentAction == Action.WaitAction);
@@ -334,8 +333,8 @@ public class SceneManager : MonoBehaviour
                 var cardObj = Object.Instantiate(CardPrefab, Player.transform);
                 var card = DealCard();
 
-                // cardObj.SetCard(card.Number, card.Mark, false);
-                cardObj.SetCard(1, card.Mark, false);
+                cardObj.SetCard(card.Number, card.Mark, false);
+                // cardObj.SetCard(1, card.Mark, false);
             }
         }
     }
@@ -438,21 +437,16 @@ public class SceneManager : MonoBehaviour
 
         if (aceCount != 0 && sumNumber <= 21)
         {
-            Debug.Log("aceCount: " + aceCount);
             for (var i = 0; i < aceCount; i++)
             {
                 if (sumNumber + 10 <= 21)
                 {
                     sumNumber += 10;
                     aceCards[i].SetAceAsEleven();
-                    Debug.Log (aceCount);
-                    Debug.Log("set as 11");
                 }
                 else
                 {
                     aceCards[i].SetAceAsOne();
-                    Debug.Log (aceCount);
-                    Debug.Log("set as 1");
                 }
             }
         }
