@@ -157,10 +157,15 @@ public class SceneManager : MonoBehaviour
             // プレイヤーが行動を決めるまで待つ
             bool waitAction = true;
             Judge doWin = Judge.NoState;
+            bool firstChoice = true;
             do
             {
                 // //エースの表示を変えるかチェックする
                 CurrentAction = Action.WaitAction;
+
+                // 最初の選択のみDouble可能
+                if (!firstChoice) DoubleButton.interactable = false;
+
                 yield return new WaitWhile(() =>
                             CurrentAction == Action.WaitAction);
 
@@ -202,6 +207,7 @@ public class SceneManager : MonoBehaviour
                         waitAction = true;
                         throw new System.Exception("知らない行動をしようとしています。");
                 }
+                firstChoice = false;
             }
             while (waitAction);
 
