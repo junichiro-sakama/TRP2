@@ -154,13 +154,33 @@ public class SceneManager : MonoBehaviour
             //カードを配る
             DealCards();
 
+            //初期配置でエースを11に設定
+            {
+                var dealedCards = new List<Card>();
+                foreach (var
+                    card
+                    in
+                    Player.transform.GetComponentsInChildren<Card>()
+                )
+                dealedCards.Add(card);
+
+                dealedCards.Reverse();
+                for (var i = 1; 0 <= i; i--)
+                {
+                    if (dealedCards[i].Number == 1)
+                    {
+                        dealedCards[i].SetAceAsEleven();
+                        break;
+                    }
+                }
+            }
+
             // プレイヤーが行動を決めるまで待つ
             bool waitAction = true;
             Judge doWin = Judge.NoState;
             bool firstChoice = true;
             do
             {
-                // //エースの表示を変えるかチェックする
                 CurrentAction = Action.WaitAction;
 
                 // 最初の選択のみDouble可能
@@ -340,7 +360,6 @@ public class SceneManager : MonoBehaviour
                 var card = DealCard();
 
                 cardObj.SetCard(card.Number, card.Mark, false);
-                // cardObj.SetCard(1, card.Mark, false);
             }
         }
     }
