@@ -36,11 +36,6 @@ public class Card : MonoBehaviour
         get
         {
             if (Number > 10) return 10;
-
-            // if (Number == 1)
-            // {
-            //     return IsLarge ? 11 : 1;
-            // }
             return Number;
         }
     }
@@ -125,7 +120,6 @@ public class Card : MonoBehaviour
     public void SetAceAsEleven()
     {
         var optionalNumberObj = transform.Find("OptionalNumberText");
-        optionalNumberObj.gameObject.SetActive(!IsReverse && Number == 1);
         var optionalNumberText = optionalNumberObj.GetComponent<Text>();
         optionalNumberText.text = "11";
     }
@@ -133,7 +127,6 @@ public class Card : MonoBehaviour
     public void SetAceAsOne()
     {
         var optionalNumberObj = transform.Find("OptionalNumberText");
-        optionalNumberObj.gameObject.SetActive(!IsReverse && Number == 1);
         var optionalNumberText = optionalNumberObj.GetComponent<Text>();
         optionalNumberText.text = "1";
     }
