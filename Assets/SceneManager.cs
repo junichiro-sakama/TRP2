@@ -492,16 +492,23 @@ public class SceneManager : MonoBehaviour
             case 1:
                 panels.transform.localPosition =
                     new Vector3(-600.0f, 0.0f, 0.0f);
-                Debug.Log(panels.transform.localPosition);
-                Debug.Log (displayingScene);
                 break;
+            case 2:
+                panels.transform.localPosition =
+                    new Vector3(-1200.0f, 0.0f, 0.0f);
+                break;       
         }
     }
 
     public void PushStartButton()
     {
-        Debug.Log(panels.transform.localPosition);
         displayingScene = 1;
+        UpdateDisplyaScene();
+    }
+
+    public void PushDealButton()
+    {
+        displayingScene = 2;
         UpdateDisplyaScene();
     }
 }
