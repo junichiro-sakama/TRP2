@@ -47,8 +47,6 @@ public class SceneManager : MonoBehaviour
 
     List<Card.Data> cards;
 
-    private int displayingScene = 0;
-
     public enum Action
     {
         WaitAction = 0,
@@ -66,6 +64,21 @@ public class SceneManager : MonoBehaviour
         Draw = 3
     }
 
+    public enum Scenes
+    {
+        Title = 0,
+        Main1 = 1,
+        Main2 = 2,
+        Ad = 3,
+        GameOver = 4,
+        Score = 5,
+        Menu = 6
+    }
+
+    private bool screenTouched = false;
+
+    private bool isCardShuffle = false;
+
     Action CurrentAction = Action.WaitAction;
 
     public void SetAction(int action)
@@ -78,6 +91,11 @@ public class SceneManager : MonoBehaviour
         BetsInput.onValidateInput = BetsInputOnValidateInput;
         BetsInput.onValueChanged.AddListener (BetsInputOnValueChanged);
         GoalPointText.text = goalPoint.ToString();
+    }
+
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0)) screenTouched = true;
     }
 
     char BetsInputOnValidateInput(string text, int startIndex, char addedChar)
@@ -110,15 +128,23 @@ public class SceneManager : MonoBehaviour
 
         while (true)
         {
-            if (cards.Count < cardCount * 0.65)
+            if (isCardShuffle)
             {
                 InitCards(); //カードを初期化する
 
                 // カードをシャッフルしたことを表示
                 ResultText.text = "Card Shuffle!!";
                 ResultText.gameObject.SetActive(true);
-                yield return new WaitForSeconds(WaitResultSeconds);
+                screenTouched = false;
+                while (!screenTouched)
+                {
+                    yield return new WaitForSeconds((float) 0.1);
+                }
+                if (!isCardShuffle) UpdateDisplyScene(Scenes.Main1);
+                screenTouched = false;
                 ResultText.gameObject.SetActive(false);
+                UpdateDisplyScene(Scenes.Main1);
+                isCardShuffle = false;
             }
 
             yield return null; //何か実装するまで残しておく
@@ -142,7 +168,7 @@ public class SceneManager : MonoBehaviour
             while (true);
 
             //画面の更新
-            BetsInputDialog.SetActive(false);
+            // BetsInputDialog.SetActive(false);
             BetsText.text = currentBets.ToString();
 
             //Doubleが選択できるかの判定
@@ -204,8 +230,13 @@ public class SceneManager : MonoBehaviour
                             waitAction = false;
                             doWin = Judge.Lose;
                         }
+
+                        // カードをシャッフルするかの判定
+                        isCardShuffle = cards.Count < cardCount * 0.65;
                         break;
                     case Action.Stand:
+                        // カードをシャッフルするかの判定
+                        isCardShuffle = cards.Count < cardCount * 0.65;
                         waitAction = false;
                         doWin = StandAction();
                         break;
@@ -219,6 +250,9 @@ public class SceneManager : MonoBehaviour
                         //画面の更新
                         BetsText.text = currentBets.ToString();
                         doWin = StandAction();
+
+                        // カードをシャッフルするかの判定
+                        isCardShuffle = cards.Count < cardCount * 0.65;
                         break;
                     case Action.Surrender:
                         waitAction = false;
@@ -226,6 +260,9 @@ public class SceneManager : MonoBehaviour
 
                         // 掛け金の半分だけ取られる処理を書く
                         currentBets /= 2;
+
+                        // カードをシャッフルするかの判定
+                        isCardShuffle = cards.Count < cardCount * 0.65;
                         break;
                     default:
                         waitAction = true;
@@ -256,16 +293,21 @@ public class SceneManager : MonoBehaviour
                 default:
                     break;
             }
-            PointText.text = currentPoint.ToString();
 
-            yield return new WaitForSeconds(WaitResultSeconds);
+            screenTouched = false;
+            while (!screenTouched)
+            {
+                yield return new WaitForSeconds((float) 0.1);
+            }
+            if (!isCardShuffle) UpdateDisplyScene(Scenes.Main1);
+            screenTouched = false;
+            PointText.text = currentPoint.ToString();
             ResultText.gameObject.SetActive(false);
 
             //ゲームオーバー・ゲームクリア処理
             if (currentPoint <= 0)
             {
-                ResultText.gameObject.SetActive(true);
-                ResultText.text = "Game Over...";
+                UpdateDisplyScene(Scenes.Ad);
                 break;
             }
             if (currentPoint >= goalPoint)
@@ -482,33 +524,72 @@ public class SceneManager : MonoBehaviour
         return sumNumber;
     }
 
-    void UpdateDisplyaScene()
+    void UpdateDisplyScene(Scenes scene)
     {
-        switch (displayingScene)
+        switch (scene)
         {
-            case 0:
+            case Scenes.Title:
                 panels.transform.localPosition = new Vector3(0.0f, 0.0f, 0.0f);
                 break;
-            case 1:
+            case Scenes.Main1:
                 panels.transform.localPosition =
                     new Vector3(-600.0f, 0.0f, 0.0f);
                 break;
-            case 2:
+            case Scenes.Main2:
                 panels.transform.localPosition =
                     new Vector3(-1200.0f, 0.0f, 0.0f);
-                break;       
+                break;
+            case Scenes.Ad:
+                panels.transform.localPosition =
+                    new Vector3(-1800.0f, 0.0f, 0.0f);
+                break;
+            case Scenes.GameOver:
+                panels.transform.localPosition =
+                    new Vector3(-2400.0f, 0.0f, 0.0f);
+                break;
+            case Scenes.Score:
+                panels.transform.localPosition =
+                    new Vector3(-3000.0f, 0.0f, 0.0f);
+                break;
+            case Scenes.Menu:
+                panels.transform.localPosition =
+                    new Vector3(-3600.0f, 0.0f, 0.0f);
+                break;
         }
+    }
+
+    public void PushTitleButton()
+    {
+        UpdateDisplyScene(Scenes.Title);
     }
 
     public void PushStartButton()
     {
-        displayingScene = 1;
-        UpdateDisplyaScene();
+        UpdateDisplyScene(Scenes.Main1);
     }
 
     public void PushDealButton()
     {
-        displayingScene = 2;
-        UpdateDisplyaScene();
+        UpdateDisplyScene(Scenes.Main2);
+    }
+
+    public void PushAdSkipButton()
+    {
+        UpdateDisplyScene(Scenes.GameOver);
+    }
+
+    public void PushRetryButton()
+    {
+        UpdateDisplyScene(Scenes.Main1);
+    }
+
+    public void PushScoreButton()
+    {
+        UpdateDisplyScene(Scenes.Score);
+    }
+
+    public void PushMenuButton()
+    {
+        UpdateDisplyScene(Scenes.Menu);
     }
 }
