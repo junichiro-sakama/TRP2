@@ -34,6 +34,8 @@ public class SceneManager : MonoBehaviour
     //パラメータ
     public int StartPoint = 20;
 
+    public GameObject panels;
+
     int currentPoint;
 
     int currentBets;
@@ -44,6 +46,8 @@ public class SceneManager : MonoBehaviour
     public int cardCount = 13 * 4;
 
     List<Card.Data> cards;
+
+    private int displayingScene = 0;
 
     public enum Action
     {
@@ -476,5 +480,28 @@ public class SceneManager : MonoBehaviour
             }
         }
         return sumNumber;
+    }
+
+    void UpdateDisplyaScene()
+    {
+        switch (displayingScene)
+        {
+            case 0:
+                panels.transform.localPosition = new Vector3(0.0f, 0.0f, 0.0f);
+                break;
+            case 1:
+                panels.transform.localPosition =
+                    new Vector3(-600.0f, 0.0f, 0.0f);
+                Debug.Log(panels.transform.localPosition);
+                Debug.Log (displayingScene);
+                break;
+        }
+    }
+
+    public void PushStartButton()
+    {
+        Debug.Log(panels.transform.localPosition);
+        displayingScene = 1;
+        UpdateDisplyaScene();
     }
 }
