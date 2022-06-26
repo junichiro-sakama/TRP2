@@ -249,10 +249,16 @@ public class SceneManager : MonoBehaviour
 
                         //画面の更新
                         BetsText.text = currentBets.ToString();
-                        doWin = StandAction();
 
                         // カードをシャッフルするかの判定
                         isCardShuffle = cards.Count < cardCount * 0.65;
+                        if (!CheckPlayerCard())
+                        {
+                            waitAction = false;
+                            doWin = Judge.Lose;
+                            break;
+                        }
+                        doWin = StandAction();
                         break;
                     case Action.Surrender:
                         waitAction = false;
