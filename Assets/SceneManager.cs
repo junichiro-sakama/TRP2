@@ -21,6 +21,8 @@ public class SceneManager : MonoBehaviour
 
     public Text BetsText;
 
+    public Text Main1BetsText;
+
     public Text PointText;
 
     public Text ResultText;
@@ -120,6 +122,7 @@ public class SceneManager : MonoBehaviour
     {
         currentPoint = StartPoint;
         BetsText.text = "0";
+        Main1BetsText.text = "0";
         PointText.text = currentPoint.ToString();
 
         ResultText.gameObject.SetActive(false);
@@ -170,6 +173,7 @@ public class SceneManager : MonoBehaviour
             //画面の更新
             // BetsInputDialog.SetActive(false);
             BetsText.text = currentBets.ToString();
+            Main1BetsText.text = currentBets.ToString();
 
             //Doubleが選択できるかの判定
             if (currentPoint < currentBets * 2)
@@ -249,6 +253,7 @@ public class SceneManager : MonoBehaviour
 
                         //画面の更新
                         BetsText.text = currentBets.ToString();
+                        Main1BetsText.text = currentBets.ToString();
 
                         // カードをシャッフルするかの判定
                         isCardShuffle = cards.Count < cardCount * 0.65;
@@ -597,5 +602,41 @@ public class SceneManager : MonoBehaviour
     public void PushMenuButton()
     {
         UpdateDisplyScene(Scenes.Menu);
+    }
+
+    public void bet_1()
+    {
+        Addbets(1);
+    }
+
+    public void bet_5()
+    {
+        Addbets(5);
+    }
+
+    public void bet_25()
+    {
+        Addbets(25);
+    }
+
+    public void bet_100()
+    {
+        Addbets(100);
+    }
+
+    public void bet_500()
+    {
+        Addbets(500);
+    }
+
+    public void Addbets(int bets)
+    {
+        if (0 < currentBets + bets && currentBets + bets <= currentPoint)
+        {
+            currentBets += bets;
+        }
+
+        // Main1BetsTextのテキストへ反映
+        Main1BetsText.text = currentBets.ToString();
     }
 }
